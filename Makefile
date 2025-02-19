@@ -7,7 +7,7 @@ MLX_FLAGS = -L$(MLX_PATH) -lmlx -lXext -lX11
 GNL_PATH = ./get_next_line
 LIBFT_PATH = ./libft
 LIBFT_FLAGS = -L$(LIBFT_PATH) -lft
-SRCS = src/main.c src/flood_fill.c src/left_right.c src/up_down.c src/handling_map.c ./src/path_utils.c $(GNL_PATH)/get_next_line.c
+SRCS = src/main.c src/flood_fill.c src/left_right.c src/up_down.c src/handling_map.c ./src/path_utils.c ./src/mlx.c $(GNL_PATH)/get_next_line.c
 OBJS = $(SRCS:.c=.o)
 
 # Rules
