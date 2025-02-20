@@ -3,6 +3,21 @@
 #include <stdlib.h>
 #include <string.h>
 
+int key_hook(int keycode, t_game *game) {
+    printf("Key pressed: %d\n", keycode);
+    if (keycode == KEY_UP || keycode == 'w')
+        up(game);
+    else if (keycode == KEY_DOWN || keycode == 's')
+        down(game);
+    else if (keycode == KEY_LEFT || keycode == 'a')
+        left(game);
+    else if (keycode == KEY_RIGHT || keycode == 'd')
+        right(game);
+    else if (keycode == KEY_ESC)
+        exit_game(game);
+    return 0;
+}
+
 void exit_game(t_game *game) {
     // Free any allocated resources
     // For example, if you have allocated memory for the game map, free it here
@@ -16,53 +31,82 @@ void exit_game(t_game *game) {
     exit(0);
 }
 
-
-int key_hook(int keycode, t_game *game) {
-    if (keycode == KEY_UP)
-        up(game);
-    else if (keycode == KEY_DOWN)
-        down(game);
-    else if (keycode == KEY_LEFT)
-        left(game);
-    else if (keycode == KEY_RIGHT)
-        right(game);
-    else if (keycode == KEY_ESC)
-        exit_game(game);
-    return 0;
-}
-
 void render_map(t_game *game, t_map *map) {
     int x, y;
 
     for (y = 0; y < map->height; y++) {
         for (x = 0; x < map->width; x++) {
+            // Render background first
+            mlx_put_image_to_window(game->mlx, game->win, game->img_background, x * TILE_SIZE, y * TILE_SIZE);
+
+            // Render other elements on top of the background
             if (map->map[y][x] == '1') {
                 mlx_put_image_to_window(game->mlx, game->win, game->img_wall, x * TILE_SIZE, y * TILE_SIZE);
             } else if (map->map[y][x] == 'P') {
                 mlx_put_image_to_window(game->mlx, game->win, game->img_player, x * TILE_SIZE, y * TILE_SIZE);
+            } else if (map->map[y][x] == '0') {
+                mlx_put_image_to_window(game->mlx, game->win, game->img_background, x * TILE_SIZE, y * TILE_SIZE);
+            } else if (map->map[y][x] == 'E') {
+                mlx_put_image_to_window(game->mlx, game->win, game->img_door, x * TILE_SIZE, y * TILE_SIZE);
+            } else if (map->map[y][x] == 'C') {
+                mlx_put_image_to_window(game->mlx, game->win, game->img_collectible, x * TILE_SIZE, y * TILE_SIZE);
             }
-            // Add more conditions for other map elements if needed
         }
     }
 }
 
-void free_map(t_map *map)
-{
-    for (int i = 0; i < map->height; i++)
-    {
+void free_map(t_map *map) {
+    for (int i = 0; i < map->height; i++) {
         free(map->map[i]);
     }
     free(map->map);
 }
 
-void print_map(t_map *map)
-{
-	printf("Map width: %d, height: %d\n", map->width, map->height);
-    for (int i = 0; i < map->height; i++)
-    {
-        printf("%s", map->map[i]);
+void move_player(t_game *game, int new_x, int new_y, void *player_img) {
+    printf("Attempting to move player to (%d, %d)\n", new_x, new_y);
+    if (new_x < 0 || new_x >= game->map.width || new_y < 0 || new_y >= game->map.height) {
+        printf("Move out of bounds\n");
+        return;
     }
-	printf("\n");
+    if (game->map.map[new_y][new_x] != '1') {
+        printf("Moving player from (%d, %d) to (%d, %d)\n", game->vars.player_x, game->vars.player_y, new_x, new_y);
+        game->map.map[game->vars.player_y][game->vars.player_x] = '0';
+        game->vars.player_x = new_x;
+        game->vars.player_y = new_y;
+        game->map.map[game->vars.player_y][game->vars.player_x] = 'P';
+        game->img_player = player_img;  // Update player image based on direction
+        render_map(game, &game->map);  // Correct argument type
+    } else {
+        printf("Move blocked by wall\n");
+    }
+}
+
+void up(t_game *game) {
+    move_player(game, game->vars.player_x, game->vars.player_y - 1, game->img_player_up);
+}
+
+void down(t_game *game) {
+    move_player(game, game->vars.player_x, game->vars.player_y + 1, game->img_player_down);
+}
+
+void left(t_game *game) {
+    move_player(game, game->vars.player_x - 1, game->vars.player_y, game->img_player_left);
+}
+
+void right(t_game *game) {
+    move_player(game, game->vars.player_x + 1, game->vars.player_y, game->img_player_right);
+}
+
+void find_player_position(t_map *map, t_vars *vars) {
+    for (int y = 0; y < map->height; y++) {
+        for (int x = 0; x < map->width; x++) {
+            if (map->map[y][x] == 'P') {
+                vars->player_x = x;
+                vars->player_y = y;
+                return;
+            }
+        }
+    }
 }
 
 int main(int argc, char **argv) {
@@ -100,16 +144,29 @@ int main(int argc, char **argv) {
     printf("Window created successfully\n");
 
     // Load images
+    game.img_background = mlx_xpm_file_to_image(game.mlx, "./img/backgroud/Solid_black.xpm", &game.img_width, &game.img_height);
     game.img_wall = mlx_xpm_file_to_image(game.mlx, "./img/wall/wall_00.xpm", &game.img_width, &game.img_height);
-    game.img_player = mlx_xpm_file_to_image(game.mlx, "./img/player/player.xpm", &game.img_width, &game.img_height);
+    game.img_player_up = mlx_xpm_file_to_image(game.mlx, "./img/player/player_game_up.xpm", &game.img_width, &game.img_height);
+    game.img_player_down = mlx_xpm_file_to_image(game.mlx, "./img/player/player_game_down.xpm", &game.img_width, &game.img_height);
+    game.img_player_left = mlx_xpm_file_to_image(game.mlx, "./img/player/player_game_left.xpm", &game.img_width, &game.img_height);
+    game.img_player_right = mlx_xpm_file_to_image(game.mlx, "./img/player/player_game.xpm", &game.img_width, &game.img_height);
+    game.img_door = mlx_xpm_file_to_image(game.mlx, "./img/goal/tv.xpm", &game.img_width, &game.img_height);
+    game.img_collectible = mlx_xpm_file_to_image(game.mlx, "./img/rewards/reward.xpm", &game.img_width, &game.img_height);
 
-    if (!game.img_wall || !game.img_player) {
+    if (!game.img_background || !game.img_wall || !game.img_player_up || !game.img_player_down || !game.img_player_left || !game.img_player_right || !game.img_door || !game.img_collectible) {
         fprintf(stderr, "Failed to load images\n");
         free_map(&map);
         return EXIT_FAILURE;
     }
 
     printf("Images loaded successfully\n");
+
+    // Initialize player position
+    find_player_position(&map, &game.vars);
+    game.map = map;
+    game.img_player = game.img_player_down;  // Set initial player image
+
+    printf("Player initial position: (%d, %d)\n", game.vars.player_x, game.vars.player_y);
 
     render_map(&game, &map);
     printf("Map rendered successfully\n");
