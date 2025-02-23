@@ -17,6 +17,12 @@
 #define KEY_ESC 53
 #define TILE_SIZE 32  // Define TILE_SIZE
 
+# define KEY_W 'w'
+# define KEY_A 'a'
+# define KEY_S 's'
+# define KEY_D 'd'
+# define KEY_Q 'q'
+
 typedef struct s_map {
     int width;
     int height;
@@ -34,21 +40,23 @@ typedef struct s_vars {
 
 // Define t_game structure
 typedef struct s_game {
+    t_map map;
+    t_vars vars;
+    int total_collectibles;
+    int collected;
     void *mlx;
     void *win;
-    t_vars vars;
-    void *img_background;  // Add background image
+    void *img_door; // Add img_door field
+    void *img_background;
     void *img_wall;
-    void *img_player;  // Add player image
-    void *img_player_up;  // Add player up image
-    void *img_player_down;  // Add player down image
-    void *img_player_left;  // Add player left image
-    void *img_player_right;  // Add player right image
-    void *img_door;  // Add door image
-    void *img_collectible;  // Add collectible image
+    void *img_player_up;
+    void *img_player_down;
+    void *img_player_left;
+    void *img_player_right;
+    void *img_player;
+    void *img_collectible;
     int img_width;
     int img_height;
-    t_map map;  // Use t_map structure for the map
 } t_game;
 
 void up(t_game *game);
@@ -57,7 +65,6 @@ void left(t_game *game);
 void right(t_game *game);
 void exit_game(t_game *game);
 
-int read_map(const char *filename, t_map *map);
 void calculate_map_dimensions(const char *filename, int *width, int *height);
 void flood_fill(t_map *map, int x, int y);
 int is_path_valid(t_map *map, int start_x, int start_y);
@@ -71,15 +78,16 @@ void move_player(t_game *game, int new_x, int new_y, void *player_img);  // Upda
 void init_map();
 void build_map();
 void free_map(t_map *map);
-
+void render_map(t_game *game, t_map *map);
 void print_map(t_map *map);
 void parse_map(t_map *map, const char *file);
 char *find_starting_position(t_map *map);
 void find_player_position(t_map *map, t_vars *vars);  // Add function declaration
-
+void update_player_position(t_game *game, int new_x, int new_y, int keycode);
+int count_collectibles(t_map *map);
 int key_hook(int keycode, t_game *game);
 void setup_hooks(t_game *game);
-void render_map(t_game *game, t_map *map);
+int read_map(const char *filename, t_map *map);
 void free_map(t_map *map);
 int mlx_key_hook(void *win_ptr, int (*funct_ptr)(), void *param);
 int mlx_loop(void *mlx);

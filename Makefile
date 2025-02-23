@@ -17,9 +17,6 @@ $(NAME): $(OBJS)
 	make -C $(LIBFT_PATH)
 	$(CC) $(CFLAGS) -o $(NAME) $(OBJS) $(MLX_FLAGS) $(LIBFT_FLAGS)
 
-%.o: %.c
-	$(CC) $(CFLAGS) -I$(MLX_PATH) -I$(GNL_PATH) -I$(LIBFT_PATH) -c $< -o $@
-
 clean:
 	rm -f $(OBJS)
 	make -C $(LIBFT_PATH) clean
@@ -29,5 +26,3 @@ fclean: clean
 	make -C $(LIBFT_PATH) fclean
 
 re: fclean all
-
-.PHONY: all clean fclean re
