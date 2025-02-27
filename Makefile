@@ -1,7 +1,7 @@
 # Variables
 NAME = so_long
 CC = gcc
-CFLAGS = -Wall -Wextra -Werror -I./minilibx-linux -I./get_next_line -I./libft
+CFLAGS = -g -Wall -Wextra -Werror -I./minilibx-linux -I./get_next_line -I./libft
 MLX_PATH = ./minilibx-linux
 MLX_FLAGS = -L$(MLX_PATH) -lmlx -lXext -lX11
 GNL_PATH = ./get_next_line

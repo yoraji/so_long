@@ -13,47 +13,63 @@
 #include "../so_long.h"
 
 void free_game(t_game *game) {
+    printf("Debug: Entering free_game\n");
     if (game->map.map) {
+        printf("Debug: Map height is %d\n", game->map.height);
         for (int i = 0; i < game->map.height; i++) {
-            free(game->map.map[i]);
+            if (game->map.map[i]) {
+                printf("Debug: Freeing map row %d\n", i);
+                free(game->map.map[i]);
+            } else {
+                printf("Debug: Map row %d is already NULL\n", i);
+            }
         }
         free(game->map.map);
     }
 
-    if (game->img_door) {
-        mlx_destroy_image(game->mlx, game->img_door);
-    }
     if (game->img_background) {
+        printf("Debug: Destroying img_background\n");
         mlx_destroy_image(game->mlx, game->img_background);
     }
     if (game->img_wall) {
+        printf("Debug: Destroying img_wall\n");
         mlx_destroy_image(game->mlx, game->img_wall);
     }
     if (game->img_player_up) {
+        printf("Debug: Destroying img_player_up\n");
         mlx_destroy_image(game->mlx, game->img_player_up);
     }
     if (game->img_player_down) {
+        printf("Debug: Destroying img_player_down\n");
         mlx_destroy_image(game->mlx, game->img_player_down);
     }
     if (game->img_player_left) {
+        printf("Debug: Destroying img_player_left\n");
         mlx_destroy_image(game->mlx, game->img_player_left);
     }
     if (game->img_player_right) {
+        printf("Debug: Destroying img_player_right\n");
         mlx_destroy_image(game->mlx, game->img_player_right);
     }
-    if (game->img_player) {
-        mlx_destroy_image(game->mlx, game->img_player);
-    }
     if (game->img_collectible) {
+        printf("Debug: Destroying img_collectible\n");
         mlx_destroy_image(game->mlx, game->img_collectible);
     }
-    if (game->win) {
-        mlx_destroy_window(game->mlx, game->win);
-    }
+    // if (game->win) {
+    //     printf("Debug: Destroying window\n");
+    //     mlx_destroy_window(game->mlx, game->win);
+    // }
     if (game->mlx) {
+        printf("Debug: Destroying display\n");
         mlx_destroy_display(game->mlx);
+        printf("Debug: Freeing mlx\n");
         free(game->mlx);
     }
+	// if (game->img_player) {
+    //     printf("Debug: Destroying img_player\n");
+    //     mlx_destroy_image(game->mlx, game->img_player);
+    // }
+    printf("Debug: Exiting free_game\n");
 }
 
 
@@ -71,7 +87,7 @@ int	key_hook(int keycode, t_game *game)
 	else if (keycode == 'd')
 		new_x++;
 	else if (keycode == KEY_ESC)
-		exit(0);
+		exit_game(game);
 	if (game->map.map[new_y][new_x] != '1')
 	{
 		update_player_position(game, new_x, new_y, keycode);
@@ -247,18 +263,16 @@ void update_player_position(t_game *game, int new_x, int new_y, int keycode) {
         if (game->collected == game->total_collectibles) {
             printf("Congratulations! You've collected all items and reached the exit.\n");
             mlx_destroy_window(game->mlx, game->win);
-			free_game(game);
-            exit(0);
-        } else {
+			printf("Debug: Before calling free_game\n");
+			exit_game(game);
+			printf("Debug: After calling free_game\n");
+        } else
             printf("You need to collect all items before exiting.\n");
-        }
     }
 
-    // Update the player's position
     game->vars.player_x = new_x;
     game->vars.player_y = new_y;
 
-    // Set the new position to the player if it's not the exit
     if (game->map.map[new_y][new_x] != 'E') {
         game->map.map[new_y][new_x] = 'P';
     }
@@ -271,7 +285,6 @@ void update_player_position(t_game *game, int new_x, int new_y, int keycode) {
         }
     }
 }
-// what the possiblible leaks are in the following code?
 
 int main(int argc, char **argv) {
     t_game game;
@@ -374,7 +387,6 @@ int main(int argc, char **argv) {
     render_map(&game, &game.map);
     printf("Map rendered successfully\n");
 
-    // mlx_key_hook(game.win, key_hook, &game);
     mlx_hook(game.win,2,1 ,key_hook, &game);
     printf("Key hook set successfully\n");
 
