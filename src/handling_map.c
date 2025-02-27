@@ -6,7 +6,9 @@
 #include <string.h>
 
 int read_map(const char *filename, t_map *map) {
-    FILE *file = fopen(filename, "r");
+   FILE *file;
+
+    file = fopen(filename, "r");
     if (!file) {
         perror("Error opening file");
         return 0;
@@ -14,16 +16,18 @@ int read_map(const char *filename, t_map *map) {
 
     // Calculate map dimensions
     calculate_map_dimensions(filename, &map->width, &map->height);
-
-    // Allocate memory for the map
-    map->map = malloc(sizeof(char *) * map->height);
+	map->map = malloc(map->height * sizeof(char *));
+    if (!map->map) {
+        perror("Failed to allocate memory for map");
+        fclose(file);
+        return 0;
+    }
     if (!map->map) {
         perror("Error allocating memory for map");
         fclose(file);
         return 0;
     }
 
-    // Read the map from the file
     char *line = NULL;
     size_t len = 0;
     ssize_t read;
@@ -32,21 +36,28 @@ int read_map(const char *filename, t_map *map) {
         map->map[i] = malloc(map->width + 1);
         if (!map->map[i]) {
             perror("Error allocating memory for map line");
+			free_map(map);
             free(line);
             fclose(file);
             return 0;
         }
         strncpy(map->map[i], line, map->width);
         map->map[i][map->width] = '\0';
+		if (!map->map[i]) {
+            perror("Failed to allocate memory for map line");
+            free_map(map);
+            fclose(file);
+            return 0;
+        }
         i++;
     }
     free(line);
     fclose(file);
-    // Print the map for debugging
-    printf("Map width: %d, height: %d\n", map->width, map->height);
-    for (int j = 0; j < map->height; j++) {
-        printf("Map line %d: %s\n", j, map->map[j]);
-    }
+    // // Print the map for debugging
+    // printf("Map width: %d, height: %d\n", map->width, map->height);
+    // for (int j = 0; j < map->height; j++) {
+    //     printf("Map line %d: %s\n", j, map->map[j]);
+    // }
     return 1;
 }
 
@@ -115,7 +126,7 @@ void parse_map(t_map *map, const char *file)
 
     while ((line = get_next_line(fd)) != NULL)
     {
-        printf("Read line: %s\n", line); // Debug print
+        printf("Read line: %s\n", line);
         map->map[i] = malloc(map->width + 1);
         strcpy(map->map[i], line);
         free(line);

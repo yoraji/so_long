@@ -10,12 +10,12 @@
 # include "minilibx-linux/mlx.h"
 # include "../get_next_line/get_next_line.h"
 
-#define KEY_UP 126
-#define KEY_DOWN 125
-#define KEY_LEFT 123
-#define KEY_RIGHT 124
-#define KEY_ESC 53
-#define TILE_SIZE 32  // Define TILE_SIZE
+#define KEY_UP 'w'
+#define KEY_DOWN 's'
+#define KEY_LEFT 'a'
+#define KEY_RIGHT 'd'
+#define KEY_ESC 'q'
+#define TILE_SIZE 32
 
 # define KEY_W 'w'
 # define KEY_A 'a'
@@ -91,5 +91,6 @@ int read_map(const char *filename, t_map *map);
 void free_map(t_map *map);
 int mlx_key_hook(void *win_ptr, int (*funct_ptr)(), void *param);
 int mlx_loop(void *mlx);
+void	free_game(t_game *game);
 
 #endif
