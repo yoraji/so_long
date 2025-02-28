@@ -59,7 +59,7 @@ int read_map(const char *filename, t_map *map) {
     // }
     return 1;
 }
-
+//???
 void calculate_map_dimensions(const char *filename, int *width, int *height) {
     FILE *file = fopen(filename, "r");
     if (!file) {
@@ -67,76 +67,58 @@ void calculate_map_dimensions(const char *filename, int *width, int *height) {
         return;
     }
 
-    char *line = NULL;
-    size_t len = 0;
-    ssize_t read;
-    *width = 0;
-    *height = 0;
-    while ((read = getline(&line, &len, file)) != -1) {
-        if (read > *width) {
-            *width = read;
-        }
-        (*height)++;
-    }
-    free(line);
-    fclose(file);
+	char *line = NULL;
+	size_t len = 0;
+	ssize_t read;
+	*width = 0;
+	*height = 0;
+	while ((read = getline(&line, &len, file)) != -1) {
+		if (read > *width)
+			*width = read;
+		(*height)++;
+	}
+	free(line);
+	fclose(file);
 }
 
-char *find_starting_position(t_map *map)
+char	*find_starting_position(t_map *map)
 {
-    for (int y = 0; y < map->height; y++)
-    {
-        if (map->map[y] == NULL)
-        {
-            fprintf(stderr, "Error: Map row %d is NULL\n", y);
-            continue;
-        }
-
-        for (int x = 0; x < map->width; x++)
-        {
-            printf("Checking position (%d, %d): %c\n", y, x, map->map[y][x]);
-            if (map->map[y][x] == 'P')
-            {
-                map->player_x = x;
-                map->player_y = y;
-                return &map->map[y][x];
-            }
-        }
-    }
-    return NULL;
+	for (int y = 0; y < map->height; y++)
+	{
+		if (map->map[y] == NULL)
+			continue;
+		for (int x = 0; x < map->width; x++)
+		{
+			if (map->map[y][x] == 'P')
+			{
+				map->player_x = x;
+				map->player_y = y;
+				return (&map->map[y][x]);
+			}
+		}
+	}
+	return (NULL);
 }
 
 void parse_map(t_map *map, const char *file)
 {
-    int fd;
-    char *line;
-    int i = 0;
+	int fd;
+	char *line;
+	int i = 0;
 
-    calculate_map_dimensions(file, &map->width, &map->height);
+	calculate_map_dimensions(file, &map->width, &map->height);
+	fd = open(file, O_RDONLY);
+	if (fd < 0)
+		exit(1);
+	map->map = malloc(sizeof(char *) * map->height);
 
-    fd = open(file, O_RDONLY);
-    if (fd < 0)
-    {
-        perror("Error opening file");
-        exit(1);
-    }
+	while ((line = get_next_line(fd)) != NULL)
+	{
+		map->map[i] = malloc(map->width + 1);
+		strcpy(map->map[i], line);
+		free(line);
+		i++;
+	}
 
-    map->map = malloc(sizeof(char *) * map->height);
-
-    while ((line = get_next_line(fd)) != NULL)
-    {
-        printf("Read line: %s\n", line);
-        map->map[i] = malloc(map->width + 1);
-        strcpy(map->map[i], line);
-        free(line);
-        i++;
-    }
-
-    close(fd);
-
-    printf("Map width: %d, height: %d\n", map->width, map->height); // Debug print
-    for (int j = 0; j < map->height; j++)
-    {
-        printf("Map line %d: %s\n", j, map->map[j]); // Debug print
-    }
+	close(fd);
 }
