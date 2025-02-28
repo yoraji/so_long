@@ -27,6 +27,10 @@ void free_game(t_game *game) {
         free(game->map.map);
     }
 
+    if (game->img_door) {
+        printf("Debug: Destroying img_door\n");
+        mlx_destroy_image(game->mlx, game->img_door);
+    }
     if (game->img_background) {
         printf("Debug: Destroying img_background\n");
         mlx_destroy_image(game->mlx, game->img_background);
@@ -51,24 +55,31 @@ void free_game(t_game *game) {
         printf("Debug: Destroying img_player_right\n");
         mlx_destroy_image(game->mlx, game->img_player_right);
     }
+    // if (game->img_player) {
+    // printf("Debug: Destroying img_player\n");
+    // if (game->mlx) {
+    //     mlx_destroy_image(game->mlx, game->img_player);
+    // } else {
+    //     printf("Error: game->mlx is NULL\n");
+    // }
+	// }
     if (game->img_collectible) {
         printf("Debug: Destroying img_collectible\n");
         mlx_destroy_image(game->mlx, game->img_collectible);
     }
-    // if (game->win) {
-    //     printf("Debug: Destroying window\n");
-    //     mlx_destroy_window(game->mlx, game->win);
-    // }
+
+    if (game->mlx) {
+	    printf("Debug: mlx is valid, destroying window\n");
+	    mlx_destroy_window(game->mlx, game->win);
+	} else {
+	    printf("Debug: mlx is NULL, cannot destroy window\n");
+	}
     if (game->mlx) {
         printf("Debug: Destroying display\n");
         mlx_destroy_display(game->mlx);
         printf("Debug: Freeing mlx\n");
         free(game->mlx);
     }
-	// if (game->img_player) {
-    //     printf("Debug: Destroying img_player\n");
-    //     mlx_destroy_image(game->mlx, game->img_player);
-    // }
     printf("Debug: Exiting free_game\n");
 }
 
@@ -262,7 +273,7 @@ void update_player_position(t_game *game, int new_x, int new_y, int keycode) {
     if (game->map.map[new_y][new_x] == 'E') {
         if (game->collected == game->total_collectibles) {
             printf("Congratulations! You've collected all items and reached the exit.\n");
-            mlx_destroy_window(game->mlx, game->win);
+            // mlx_destroy_window(game->mlx, game->win);
 			printf("Debug: Before calling free_game\n");
 			exit_game(game);
 			printf("Debug: After calling free_game\n");
@@ -285,6 +296,24 @@ void update_player_position(t_game *game, int new_x, int new_y, int keycode) {
         }
     }
 }
+void init_game(t_game *game) {
+    game->map.map = NULL;
+    game->mlx = NULL;
+    game->win = NULL;
+    game->img_door = NULL;
+    game->img_background = NULL;
+    game->img_wall = NULL;
+    game->img_player_up = NULL;
+    game->img_player_down = NULL;
+    game->img_player_left = NULL;
+    game->img_player_right = NULL;
+    game->img_player = NULL;
+    game->img_collectible = NULL;
+    game->total_collectibles = 0;
+    game->collected = 0;
+    game->img_width = 0;
+    game->img_height = 0;
+}
 
 int main(int argc, char **argv) {
     t_game game;
@@ -294,7 +323,7 @@ int main(int argc, char **argv) {
         fprintf(stderr, "Usage: %s <map_file>\n", argv[0]);
         return EXIT_FAILURE;
     }
-
+	init_game(&game);
     if (!read_map(argv[1], &map)) {
         fprintf(stderr, "Failed to read map\n");
         return EXIT_FAILURE;

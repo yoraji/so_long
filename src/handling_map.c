@@ -14,7 +14,6 @@ int read_map(const char *filename, t_map *map) {
         return 0;
     }
 
-    // Calculate map dimensions
     calculate_map_dimensions(filename, &map->width, &map->height);
 	map->map = malloc(map->height * sizeof(char *));
     if (!map->map) {
