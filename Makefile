@@ -1,28 +1,23 @@
 NAME = so_long
 CC = gcc
-CFLAGS = -Wall -Wextra -Werror -I./minilibx-linux -I./get_next_line -I./libft
+CFLAGS = -Wall -Wextra -Werror -I./minilibx-linux -I./get_next_line
 MLX_PATH = ./minilibx-linux
 MLX_FLAGS = -L$(MLX_PATH) -lmlx -lXext -lX11
 GNL_PATH = ./get_next_line
-LIBFT_PATH = ./libft
-LIBFT_FLAGS = -L$(LIBFT_PATH) -lft
 SRCS =	src/main.c src/flood_fill.c src/left_right.c src/up_down.c \
-		src/update_player_pos.c src/for_free.c src/handling_map.c \
-		src/utils_00.c ./src/path_utils.c ./src/mlx.c $(GNL_PATH)/get_next_line.c
+		src/update_player_pos.c src/for_free.c src/handling_map.c src/ft_strchr.c src/ft_strdup.c src/ft_strjoin.c src/ft_strlen.c src/ft_substr.c \
+		src/utils_00.c ./src/path_utils.c ./src/ft_memcpy.c ./src/mlx.c $(GNL_PATH)/get_next_line.c
 OBJS = $(SRCS:.c=.o)
 
 all: $(NAME)
 
 $(NAME): $(OBJS)
-	make -C $(LIBFT_PATH)
-	$(CC) $(CFLAGS) -o $(NAME) $(OBJS) $(MLX_FLAGS) $(LIBFT_FLAGS)
+	$(CC) $(CFLAGS) -o $(NAME) $(OBJS) $(MLX_FLAGS)
 
 clean:
 	rm -f $(OBJS)
-	make -C $(LIBFT_PATH) clean
 
 fclean: clean
 	rm -f $(NAME)
-	make -C $(LIBFT_PATH) fclean
 
 re: fclean all

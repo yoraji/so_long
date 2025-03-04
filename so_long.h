@@ -1,4 +1,16 @@
-#ifndef SO_LONG_H
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   so_long.h                                          :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: marvin <marvin@student.42.fr>              +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2025/02/28 16:01:39 by marvin            #+#    #+#             */
+/*   Updated: 2025/02/28 16:01:39 by marvin           ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
+# ifndef SO_LONG_H
 # define SO_LONG_H
 
 # include <stdlib.h>
@@ -49,6 +61,7 @@ typedef struct s_game {
 	void *img_collectible;
 	int img_width;
 	int img_height;
+	int mov;
 }	t_game;
 
 void	up(t_game *game);
@@ -56,7 +69,6 @@ void	down(t_game *game);
 void	left(t_game *game);
 void	right(t_game *game);
 void	exit_game(t_game *game);
-void	calculate_map_dimensions(const char *filename, int *width, int *height);
 void	flood_fill(t_map *map, int x, int y);
 int		is_path_valid(t_map *map, int start_x, int start_y);
 void	move_player(t_game *game, int new_x, int new_y, void *player_img);
@@ -70,11 +82,21 @@ void	update_player_position(t_game *game, int new_x, int new_y, int keycode);
 int		count_collectibles(t_map *map);
 int		key_hook(int keycode, t_game *game);
 void	setup_hooks(t_game *game);
-int		read_map(const char *filename, t_map *map);
+int read_map(char *filename, t_map *map );
 void	free_map(t_map *map);
 int		mlx_key_hook(void *win_ptr, int (*funct_ptr)(), void *param);
 int		mlx_loop(void *mlx);
 void	free_game(t_game *game);
 void	init_game(t_game *game);
-
+int check_map(t_game *game, t_map *map);
+int		count_exits(t_game *game);
+int count_collectibles__(t_game *game);
+void	free_vars(t_vars *vars);
+//
+void	*ft_memcpy(void *dst, const void *src, size_t n);
+char	*ft_strdup(const char *s);
+size_t	ft_strlen(char const *str);
+char	*ft_strjoin(char const *s1, char const *s2);
+char	*ft_strchr(const char *s, int c);
+//
 #endif
